@@ -1,0 +1,75 @@
+﻿@page "/AddProduct"
+@using Entities.Concrete
+@using Business.Services
+@using ProductUI.Service
+@inject ProductService productService
+@inject NavigationManager NavigationManager
+@inject IFileUpload _fileUpload
+<h2>Add Product</h2>
+<hr />
+<form>
+    <div class="row">
+        <div class="col-md-8">
+            <div class=" form-group">
+                <label for="ProductName">Product Name</label>
+                <input form="ProductName" class="form-control" @bind="@product.ProductName" />
+            </div>
+            <div class=" form-group">
+                <label for="UnitPrice">Unit Price</label>
+                <input form="UnitPrice" class="form-control" @bind="@product.UnitPrice" />
+            </div>
+            <div class=" form-group">
+                <label for="UnitsInStock">Units In Stock</label>
+                <input form="UnitsInStock" class="form-control" @bind="@product.UnitsInStock" />
+            </div>
+            <div class=" form-group">
+                <label for="Description">Description</label>
+                <textarea form="Description" class="form-control" @bind="@product.Description" />
+            </div>
+            <div class=" form-group">
+                <label for="CreatedBy">Created By</label>
+                <input form="CreatedBy" class="form-control" @bind="@product.CreatedBy" />
+            </div>
+            <div class=" form-group">
+                <label for="CreatedTime">Created Time</label>
+                <input form="CreatedTime" class="form-control" @bind="@product.CreatedTime" />
+            </div>
+            <div class="form-group">
+                <InputFile OnChange="AddPicture">
+                    <img src="@product.Image" width="100" height="100" />
+                </InputFile>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="button" class="btn btn-primary" @onclick="@Add" value="Save" />
+                <input type="button" class="btn btn-outline-secondary" @onclick="@Cancel" value="Cancel" />
+            </div>
+        </div>
+    </div>
+</form>
+
+@code {
+    Product product = new Product();
+
+    protected void Add()
+    {
+        productService.Add(product);
+        NavigationManager.NavigateTo("product");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("product");
+    }
+    private async Task AddPicture(InputFileChangeEventArgs file)
+    {
+        var fileName = file.File.Name;
+        var resizedImage = await file.File.RequestImageFileAsync(fileName, 200, 200);
+        var buffer = new byte[resizedImage.Size];
+        await resizedImage.OpenReadStream().ReadAsync(buffer);
+        var imageData = $"data:{fileName};base64,{Convert.ToBase64String(buffer)}";
+        product.Image = imageData;
+    }
+}

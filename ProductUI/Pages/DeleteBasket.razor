@@ -1,0 +1,60 @@
+﻿@page "/DeleteBasket/{CurrentID}"
+
+@using Entities.Concrete
+@using Business.Services
+@inject BasketService basketService
+@inject NavigationManager NavigationManager
+
+
+<h3>Are you sure you want to delete the product from the cart?</h3>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="form-group">
+            <label>Image :</label>
+            <label><img src="@basket.Image" width="100" height="100" /></label>
+        </div>
+        <div class="form-group">
+            <label>Product Name:</label>
+            <label>@basket.ProductName</label>
+        </div>
+        <div class="form-group">
+            <label>Unit Price:</label>
+            <label>@basket.UnitPrice</label>
+        </div>
+        <div class="form-group">
+            <label>Description:</label>
+            <label>@basket.Description</label>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="form-group">
+            <input type="button" class="btn btn-danger" @onclick="@Delete" value="Delete" />
+            <input type="button" class="btn btn-outline-secondary" @onclick="@Cancel" value="Cancel" />
+        </div>
+    </div>
+</div>
+@code {
+    [Parameter]
+    public string CurrentID { get; set; }
+
+    Basket basket = new Basket();
+
+    protected override async Task OnInitializedAsync()
+    {
+        basket = await Task.Run(() => basketService.GetBasket(Convert.ToInt32(CurrentID)));
+    }
+
+    protected void Delete()
+    {
+        basketService.Delete(basket);
+        NavigationManager.NavigateTo("buylist");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("buylist");
+    }
+}

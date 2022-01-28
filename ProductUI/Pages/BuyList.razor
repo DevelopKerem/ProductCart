@@ -1,0 +1,55 @@
+﻿@page "/buylist/{Id:int}"
+@page "/buylist"
+@using Entities.Concrete;
+@using Business.Services
+@inject NavigationManager Navigate
+@inject BasketService basketservice
+@code{
+    List<Basket> baskets = new List<Basket>();
+    [Parameter]
+    public int Id { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        baskets = await Task.Run(() => basketservice.getBaskets());
+    }
+}
+<br />
+<h1>Cart</h1>
+@if (baskets == null)
+{
+    <p><em>Loading....</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Product Name</th>
+                <th>Unit Price</th>
+                <th>Description</th>
+                <th>Created By</th>
+                <th>Buy Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in baskets)
+            {
+            <tr>
+                <td><img src="@p.Image" width="100" height="100" /></td>
+                <td>@p.ProductName</td>
+                <td>@p.UnitPrice</td>
+                <td><textarea class="text-lg-left">@p.Description</textarea></td>
+                <td>@p.CreatedBy</td>
+                <td>@p.CreatedTime</td>
+                <td>
+                    <a class="nav-link" href="DeleteBasket/@p.Id">
+                        <span class="oi oi-trash" aria-hidden="true"></span>Delete
+                    </a>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+}
+

@@ -1,0 +1,77 @@
+﻿@page "/BuyProduct/{Id:int}"
+@using Entities.Concrete
+@using Business.Services
+@inject ProductService productService
+@inject BasketService basketservice
+@inject NavigationManager NavigationManager
+
+<h2>Buy Product</h2>
+<hr />
+<form>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <label>Image :</label>
+                <label><img src="@product.Image" width="100" height="100" /></label>
+            </div>
+            <div class=" form-group">
+                <label for="ProductName">Product Name</label>
+                <input form="ProductName" class="form-control" @bind="@product.ProductName" readonly />
+            </div>
+            <div class=" form-group">
+                <label for="UnitPrice">Unit Price</label>
+                <input form="UnitPrice" class="form-control" @bind="@product.UnitPrice" readonly />
+            </div>
+            <div class=" form-group">
+                <label for="Description">Description</label>
+                <textarea form="Description" class="form-control" @bind="@product.Description" readonly />
+            </div>
+            <div class=" form-group">
+                <label for="CreatedBy">Created By</label>
+                <textarea form="CreatedBy" class="form-control" @bind="@product.CreatedBy" readonly />
+            </div>
+            <div class=" form-group">
+                <label for="CreatedTime">Buy Time</label>
+                <textarea form="CreatedTime" class="form-control" @bind="@basket.CreatedTime" readonly />
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="button" class="btn btn-primary" @onclick="@Buy" value="Buy Now" />
+                <input type="button" class="btn btn-outline-secondary" @onclick="@Cancel" value="Cancel" />
+            </div>
+        </div>
+    </div>
+</form>
+
+@code {
+
+    private Basket basket { get; set; } = new Basket();
+
+    [Parameter]
+    public int? Id { get; set; }
+
+    private Product product { get; set; } = new Product();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var data = await productService.GetProduct((int)Id);
+        product = data;
+    }
+
+    protected async void Buy()
+    {
+
+        await basketservice.GetBasket(product.Id);
+        basketservice.getBaskets();
+        product.UnitsInStock--;
+        basketservice.Add(product);
+        NavigationManager.NavigateTo($"/buylist/{product.Id}");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("product");
+    }
+}
